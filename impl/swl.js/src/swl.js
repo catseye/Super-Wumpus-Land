@@ -183,6 +183,37 @@ SuperWumpusLand = function() {
 
         print("\n");
 
+        var smellWumpus = false;
+        for (var i = 0; i < this.wumpi.length; i++) {
+            if (room.exits[i] === this.wumpi[i]) {
+                smellWumpus = true;
+                break;
+            }
+        }
+        if (smellWumpus && !this.ustink) {
+            print("* I smell a Wumpus!\n");
+        }
+
+        var batsNearby = false;
+        for (var i = 0; i <= 2; i++)
+        {
+            if (this.rooms[room.exits[i]].bats > 0)
+                batsNearby = true;
+        }
+        if (batsNearby) {
+            print("* Bats nearby!\n");
+        }
+
+        var aDraft = false;
+        for (var i = 0; i <= 2; i++)
+        {
+            if (this.rooms[room.exits[i]].pits > 0)
+                aDraft = true;
+        }
+        if (aDraft) {
+            print("* I feel a draft...\n");
+        }
+
         print("\nFrom here you can make passage to\n");
         for (var i = 0; i <= 2; i++)
         {
@@ -257,7 +288,19 @@ SuperWumpusLand = function() {
         print("What would you like to do next, " + this.name + "?  ");
     };
     
+    this.pause = function() {
+        this.tty.write("\n[Press ENTER to continue.]  ");
+        this.paused = true;
+    };
+
     this.handleInput = function(input) {
+        if (this.paused) {
+            this.paused = false;
+            this.show();
+            this.ask();
+            return;
+        }
+
         var self = this;
         var print = function(str) {
             self.tty.write(str);
@@ -269,8 +312,10 @@ SuperWumpusLand = function() {
             this.done = true;
             return;
         } else if (input === 'I') {
-            // this.score();
-            // this.pause();
+            //alert('ya');
+            print("Your score is 7.");
+            this.pause();
+            return;
         } else if (input === 'D' && room.guano > 0) {
             this.ustink += d(3,3);
             room.guano--;
@@ -278,7 +323,8 @@ SuperWumpusLand = function() {
             if (d(1,6)  == 1) { room.cans++; }
             if (d(1,12) == 1) { room.tokens++; }
             print("\nEw.  You now stink so bad that you can't smell anything but yourself.\n");
-            // pause();
+            this.pause();
+            return;
         } else if (input === 'P') {
             this.arrows += room.arrows; room.arrows = 0;
             this.cans += room.cans; room.cans = 0;
