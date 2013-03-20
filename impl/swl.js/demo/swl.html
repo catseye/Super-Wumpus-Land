@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <title>SUPER WUMPUS LAND</title>
+</head>
+<body>
+
+<h1>SUPER WUMPUS LAND</h1>
+
+<canvas id="canvas" width="400" height="400" tabindex="0">
+  Your browser doesn't support displaying an HTML5 canvas.
+</canvas>
+
+</body>
+<script src="../src/yoob/text-console.js"></script>
+<script src="../src/yoob/text-terminal.js"></script>
+<script src="../src/yoob/line-input-buffer.js"></script>  
+<script src="../src/swl.js"></script>
+<script>
+  var canvas = document.getElementById('canvas');
+  var t = new yoob.TextTerminal();
+  t.init(canvas, 20, 80, 25);
+  var swl = new SuperWumpusLand();
+  swl.init(t);
+  var ib = new yoob.LineInputBuffer();
+  ib.init(canvas, t, function(str) {
+    swl.handleInput(str);
+  });
+  canvas.focus();
+</script>
