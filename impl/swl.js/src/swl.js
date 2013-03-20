@@ -19,6 +19,13 @@ Room = function() {
         this.bats = 0;
         this.pits = 0;
     };
+};
+
+Wumpus = function() {
+    this.init = function() {
+        this.room = d(1, 100);
+        this.asleep = (d(1, 2) === 1);
+    };
 }
 
 SuperWumpusLand = function() {
@@ -75,28 +82,29 @@ SuperWumpusLand = function() {
           'Expanse'
         ];
 
+        var backlinks = [];
         for (var i = 0; i < 10; i++)
         {
-          for (var j = 0; j < 10; j++)
-          {
-            var r = i * 10 + j + 1;
-            var r1 = d(1,100);
-            var r2 = d(1,100);
-            var r3 = d(1,100);
-            var room = new Room();
-            room.init(loc_adj[i] + ' ' + loc_noun[j], [r1, r2, r3]);
-            this.rooms[r] = room;
-            // backlink exits
-            if (this.rooms[r1] !== undefined) {
-                this.rooms[r1].exits[0] = r;
+            for (var j = 0; j < 10; j++)
+            {
+                var r = i * 10 + j + 1;
+                var r1 = d(1,100);
+                var r2 = d(1,100);
+                var r3 = d(1,100);
+                var room = new Room();
+                room.init(loc_adj[i] + ' ' + loc_noun[j], [r1, r2, r3]);
+                this.rooms[r] = room;
+                backlinks.push([r1, r]);
+                backlinks.push([r2, r]);
+                backlinks.push([r3, r]);              
             }
-            if (this.rooms[r2] !== undefined) {
-                this.rooms[r2].exits[0] = r;
-            }
-            if (this.rooms[r3] !== undefined) {
-                this.rooms[r3].exits[0] = r;
-            }
-          }
+        }
+        
+        for (var i = 0; i < backlinks.length; i++) {
+            var src = backlinks[i][0];
+            var dest = backlinks[i][1];
+            var exit = Math.floor(Math.random() * 3);
+            this.rooms[src].exits[exit] = dest;
         }
 
         for (var i = 0; i < 42; i++)
@@ -109,7 +117,8 @@ SuperWumpusLand = function() {
 
         for (var i = 0; i < 5; i++)
         {
-            this.wumpi[i] = d(1,100);
+            this.wumpi[i] = new Wumpus();
+            this.wumpi[i].init();
         }
         for (var i = 0; i < 11; i++)
         {
@@ -185,9 +194,31 @@ SuperWumpusLand = function() {
 
         var smellWumpus = false;
         for (var i = 0; i < this.wumpi.length; i++) {
-            if (room.exits[i] === this.wumpi[i]) {
-                smellWumpus = true;
-                break;
+            if (this.wumpi[i].room === this.roomNo) {
+                if (!this.wumpi[i].asleep) {
+                    if (this.subway) {
+                        print("* Right outside the train window is a Wumpus!\n");
+                    } else if (this.camo) {
+                        print("* Good thing the Wumpus here can't see you.\n");
+                    } else {
+                        print("* Oh No, " + this.name + "!  A Wumpus ATE YOU UP!!!\n");
+                        if (this.codliver > 0) {
+                            print("  ...and immediately BARFED YOU BACK OUT!!!!\n");
+                        } else {
+                            this.pause();
+                            this.done = true;
+                            return;
+                        }
+                    }
+                } else {
+                    print("* There's a Wumpus asleep RIGHT IN FRONT OF YOU!!\n");
+                }
+            }
+            for (var exit = 0; exit < 3; exit++) {
+                if (room.exits[exit] === this.wumpi[i].room) {
+                    smellWumpus = true;
+                    break;
+                }
             }
         }
         if (smellWumpus && !this.ustink) {
@@ -340,7 +371,53 @@ SuperWumpusLand = function() {
                 }
             }
         }
+
+        this.moveWumpi();
+
         this.show();
         this.ask();
     };
-}
+    
+    this.moveWumpi = function() {
+        var self = this;
+        var print = function(str) {
+            self.tty.write(str);
+        };
+
+        for (var i = 0; i < this.wumpi.length; i++) {
+            var wumpus = this.wumpi[i];
+            if (wumpus.room === 0) {
+                if (d(1, 5) === 1) {
+                    // restart wumpus
+                    wumpus.room = d(1, 100);
+                    while (wumpus.room === this.roomNo) {
+                        wumpus.room = d(1, 100);
+                    }
+                    wumpus.asleep = false;
+                }
+                continue;
+            }
+            if (wumpus.asleep) {
+                if (d(1, 4) === 1) {
+                    wumpus.asleep = false;
+                    if (d(1, 5) !== 1) {
+                        this.rooms[wumpus.room].guano++;
+                    }
+                }
+            } else {
+                if (d(1, 3) === 1) {
+                    var dest = this.rooms[wumpus.room].exits[d(1,3)-1];
+                    if (dest !== this.roomNo || !this.moved) {
+                        wumpus.room = dest;
+                        if (dest === this.roomNo) {
+                            print("From around a corner, a hungry-looking Wumpus appears!!\n");
+                            this.pause();
+                        }
+                    }
+                }
+                if (d(1,8) === 1) { wumpus.asleep = true; }
+                if (d(1,8) === 1) { this.rooms[wumpus.room].guano++; }
+            }
+        }
+    };
+};
