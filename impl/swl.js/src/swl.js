@@ -43,17 +43,17 @@ SuperWumpusLand = function() {
         this.hides = 0;
         this.cans = 0;
         this.tokens = 0;
-        
+
         this.batbgon = 0;
-        this.codLiver = 0;
+        this.codliver = 0;
         this.camo = 0;
         this.grip = 0;
         this.ustink = 0;
         
-        this.subway = undefined;
+        this.subway = false;
         
-        this.done = undefined;
-        this.skip = undefined;
+        this.done = false;
+        this.skip = false;
         this.moved = false;
 
         var loc_adj = [
@@ -225,6 +225,19 @@ SuperWumpusLand = function() {
             print("* I smell a Wumpus!\n");
         }
 
+        if (room.bats > 0) {
+            if (this.subway) {
+                print("* Super Bats flutter out of the path of the subway train.\n");
+            } else if (this.batbgon > 0) {
+                print("* Super Bats in this location stay well away from your awful stench!\n");
+            } else {
+                print("* Zap!  Super Bat Snatch!  Elsewheresville for you!\n");
+                this.pause();
+                this.roomNo = d(1,100);
+                this.skip = 1;
+                return;
+            }
+        }
         var batsNearby = false;
         for (var i = 0; i <= 2; i++)
         {
@@ -235,6 +248,18 @@ SuperWumpusLand = function() {
             print("* Bats nearby!\n");
         }
 
+        if (room.pits > 0) {
+            if (this.subway) {
+                print("* The subway rails take a curving path around a bottomless pit here.\n");
+            } else if (this.grip > 0) {
+                print("* You deftly stick to the edge of the bottomless pit!\n");
+            } else {
+                print("* Yiiiieeee!!!  Fell in a pit!\n");
+                this.pause();
+                this.done = true;
+                return;
+            }
+        }
         var aDraft = false;
         for (var i = 0; i <= 2; i++)
         {
@@ -347,6 +372,46 @@ SuperWumpusLand = function() {
             print("Your score is 7.");
             this.pause();
             return;
+        } else if (input === 'A' && this.cans > 0) {
+            this.cans--;
+            print("\n  * * * *** fshhhhhhhhhhfft *** * * *\n\n");
+            //sleep 1;
+            print("  Turns out it was ... ");
+            //sleep 2;
+            var c = d(1, 7);
+            if (c === 1) {
+              print("new car smell!\n");
+            } else if (c === 2) {
+              print("\"Bat-B-Gon!\"\n");
+              this.batbgon += d(4,4);
+            } else if (c === 3) {
+              print("pepper spray!!!!  AIIIGGGGHHHH!!!\n\n");
+              //sleep 1;
+              print("  AAAAIIIIIIIIIIIIIIGGGGGGHHHHH!!!\n\n");
+              //sleep 2;
+              print("  AAAAAAAIIIIIIIIIIIIIIIIIIIIGGGGGGGGHHHHHH!!!\n\n");
+              //sleep 3;
+              print("  AAAAAAAAAAIIIIIIIIIIIIIIIIIIIIIIIIIIGGGGGGGGGGHHHHHHH!!!\n\n");
+              //sleep 4;
+              print("You run around screaming for a while until the burning subsides...\n");
+              this.roomNo = d(1,100);
+            } else if (c === 4) {
+              print("\"Super Sticky Grip Goop\"!\n");
+              this.grip += d(4,4);
+            } else if (c === 5) {
+              print("cod liver oil!\n");
+              this.codliver += d(4,4);
+            } else if (c === 6) {
+              print("camoflage paint!\n");
+              this.camo += d(4,4);
+            } else if (c === 7) {
+              print("\"E-Z-F Oven Cleaner!\"\n");
+              if (this.grip > 0) this.grip = 1;
+              if (this.camo > 0) this.camo = 1;
+              if (this.codliver > 0) this.codliver = 1;
+              if (this.batbgon > 0) this.batbgon = 1;
+            }
+            this.pause();
         } else if (input === 'D' && room.guano > 0) {
             this.ustink += d(3,3);
             room.guano--;
