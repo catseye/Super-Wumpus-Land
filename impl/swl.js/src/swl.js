@@ -16,6 +16,7 @@ function rep(ch, num) {
 }
 
 function rjust(str, width) {
+    str = '' + str;
     if (str.length >= width) return str;
     return rep(' ', width - str.length) + str;
 }
@@ -64,7 +65,8 @@ SuperWumpusLand = function() {
         this.grip = 0;
         this.ustink = 0;
         
-        this.subway = false;
+        this.subway = 0;
+        this.subwayTurns = 0;
         
         this.skip = false;
         this.moved = false;
@@ -162,15 +164,15 @@ SuperWumpusLand = function() {
             if (i === 6)
                 print("*                S U P E R     W U M P U S     L A N D                 *\n");
             else if (i === 7)
-               print("*                ---------     -----------     -------                 *\n");
+                print("*                ---------     -----------     -------                 *\n");
             else if (i === 9)
-               print("*                           v1.1 (Javascript)                          *\n");
+                print("*                           v1.1 (Javascript)                          *\n");
             else if (i === 14)
-               print("*              by Chris Pressey, Cat's Eye Technologies                *\n");
+                print("*              by Chris Pressey, Cat's Eye Technologies                *\n");
             else if (i === 16)
-               print("*              Based on an original game by Gregory Yob                *\n");
+                print("*              Based on an original game by Gregory Yob                *\n");
             else
-               print("*" + rep(' ', 70) + "*\n");
+                print("*" + rep(' ', 70) + "*\n");
         }
         print(rep('*', 72) + "\n");
     };
@@ -184,38 +186,48 @@ SuperWumpusLand = function() {
         print("Scorecard for " + this.name + "\n");
         print(rep('=', 14 + this.name.length) + "\n\n");
         
-        var h1 = rjust('' + this.hides, 3);
-        var s1 = rjust('' + (this.hides * 25), 9);
-        print("Wumpus Hides       " + h1 + " x  25 = " + s1 + "\n");
+        var scoreHides = this.hides * 25;
+        print("Wumpus Hides       " +
+              rjust(this.hides, 3) +
+              " x  25 = " +
+              rjust(scoreHides, 9) +
+              "\n");
 
-        var h2 = rjust('' + this.arrows, 3);
-        var s2 = rjust('' + (this.arrows * 2), 9);
-        print("Arrows Remaining   " + h2 + " x   2 = " + s2 + "\n");
+        var scoreArrows = this.arrows * 2;
+        print("Arrows Remaining   " +
+              rjust(this.arrows, 3) +
+              " x   2 = " +
+              rjust(scoreArrows, 9) +
+              "\n");
 
-        var h4 = rjust('' + this.cans, 3);
-        var s4 = rjust('' + (this.cans * 3), 9);
-        print("Aerosol Cans       " + h4 + " x   3 = " + s4 + "\n");
+        var scoreCans = this.cans * 3;
+        print("Aerosol Cans       " +
+              rjust(this.cans, 3) +
+              " x   3 = " +
+              rjust(scoreCans, 9) +
+              "\n");
 
-        var h5 = rjust('' + this.tokens, 3);
-        var s5 = rjust('' + (this.tokens * 5), 9);
-        print("Subway Tokens      " + h5 + " x   5 = " + s5 + "\n");
+        var scoreTokens = this.tokens * 5;
+        print("Subway Tokens      " +
+              rjust(this.tokens, 3) +
+              " x   5 = " +
+              rjust(scoreTokens, 9) +
+              "\n");
 
-          /*
-        my $h3 = 0;
-        for (my $i = 1; $i <= 100; $i++)
-        {
-          $h3++ if $visited[$i];
+        var scoreLocations = 0;
+        for (var i = 1; i <= 100; i++) {
+            if (this.visited[i]) scoreLocations++;
         }
-        $h3 = sprintf("%3d", $h3);
-        my $s3 = sprintf("%9d", $h3);
-        print "Locations Visited  $h3 x   1 = $s3\n";
+        print("Locations Visited  " +
+              rjust(scoreLocations, 3) +
+              " x   1 = " +
+              rjust(scoreLocations, 9) +
+              "\n");
 
-        my $tot = sprintf("%9d", $s1 + $s2 + $s3 + $s4 + $s5);
-        print "                               ---------\n";
-        print "Total                          $tot\n\n";
-        */
+        var scoreTotal = scoreHides + scoreArrows + scoreCans + scoreTokens + scoreLocations;
+        print("                               ---------\n");
+        print("Total                          " + rjust(scoreTotal, 9) + "\n\n");
     };
-
 
     this.pause = function(nextState) {
         this.tty.write("\n[Press ENTER to continue.]  ");
@@ -278,7 +290,7 @@ SuperWumpusLand = function() {
         for (var i = 0; i < this.wumpi.length; i++) {
             if (this.wumpi[i].room === this.roomNo) {
                 if (!this.wumpi[i].asleep) {
-                    if (this.subway) {
+                    if (this.subway > 0) {
                         print("* Right outside the train window is a Wumpus!\n");
                     } else if (this.camo) {
                         print("* Good thing the Wumpus here can't see you.\n");
@@ -307,7 +319,7 @@ SuperWumpusLand = function() {
         }
 
         if (room.bats > 0) {
-            if (this.subway) {
+            if (this.subway > 0) {
                 print("* Super Bats flutter out of the path of the subway train.\n");
             } else if (this.batbgon > 0) {
                 print("* Super Bats in this location stay well away from your awful stench!\n");
@@ -330,7 +342,7 @@ SuperWumpusLand = function() {
         }
 
         if (room.pits > 0) {
-            if (this.subway) {
+            if (this.subway > 0) {
                 print("* The subway rails take a curving path around a bottomless pit here.\n");
             } else if (this.grip > 0) {
                 print("* You deftly stick to the edge of the bottomless pit!\n");
@@ -593,23 +605,28 @@ SuperWumpusLand = function() {
             this.pause('statePrompt');
         } else {
             this.tokens--;
+            this.subway = dest;
+            this.subwayTurns = 3;
             print("\n  \"All aboard!\"\n\n");
+            this.pause('stateRidingSubway');
+        }
+    };
+
+    this.stateRidingSubway = function(input) {
+        var self = this;
+        var print = function(str) {
+            self.tty.write(str);
+        };
+        this.roomNo = d(1, 100);
+        this.show();
+        this.subwayTurns--;
+        if (this.subwayTurns === 0) {
+            print("\n  \"Next stop, " + this.subway + ", " + this.rooms[this.subway].desc + "...\"\n\n");
+            this.roomNo = this.subway;
             this.pause('statePrompt');
-            /*
-            sleep 2;
-            for(my $q = 1; $q <= 3; $q++) { print ((' ' x $q) x $q . "...chug chug...\n"); sleep 1; }
-            for(my $i = 1; $i <= 3; $i++)
-            {
-              $room = d(1,100);
-              $subway = 1;
-              show();
-              for(my $q = 1; $q <= 3; $q++) { print ((' ' x $i) x $q . "...chug chug...\n"); sleep 1; }
-              $subway = 0;
-            }
-            print "\n  \"Next stop, $r, $room[$r]->[0]...\"";
-            sleep 3;
-            $room = $r;
-            */
+        } else {
+            print("\n  ...chug chug...\n\n");
+            this.pause('stateRidingSubway');
         }
     };
 
