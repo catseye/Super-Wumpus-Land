@@ -35,6 +35,7 @@ SuperWumpusLand = function() {
         this.rooms = [];
         this.visited = [];
         this.wumpi = [];
+        this.itinerary = [];
 
         this.name = 'user';  // Actually, it's the *player's* name...
         this.roomNo = 0;
@@ -426,6 +427,7 @@ SuperWumpusLand = function() {
         return message;
     };
     
+    // returns true if you didn't die
     this.fireArrow = function() {
         var self = this;
         var print = function(str) {
@@ -443,38 +445,25 @@ SuperWumpusLand = function() {
                 (room.exits[1] === arrowDest) ||
                 (room.exits[2] === arrowDest)) {
                 arrowLoc = arrowDest;
-                /*
-                for(my $i = 0; $i < 20; $i++)
-                {
-                  if ($wumpus[$i]->[0] == $l)
-                  {
-                    sleep 3;
-                    print "...*SPLAK*!  Got something!\n";
-                    $wumpus[$i]->[0] = 0;
-                    $room[$l]->[5]++;
-                    pause();
-                    return;
-                  }
+                for (var i = 0; i < this.wumpi.length; i++) {
+                    var wumpus = this.wumpi[i];
+                    if (wumpus.room === arrowLoc) {
+                        print("...*SPLAK*!  Got something!\n");
+                        wumpus.room = 0;
+                        this.rooms[arrowLoc].carcasses++;
+                        return true;
+                    }
                 }
-
-                if ($room == $l)
-                {
-                  sleep 3;
-                  print "...*ZOINKS!*\n\nYou shot yourself in the foot, $name!!!\n";
-                  $done = 1;
-                  pause();
-                  return;
+                if (arrowLoc === this.roomNo) {
+                    print("...*ZOINKS!*\n\nYou shot yourself in the foot, " + this.name + "!!!\n");
+                    return false;
                 }
-
-                sleep 1;
-                print "...whoosh... ";
-                */
-                print("(arrow is in room " + arrowLoc + ")");
+                print("...whoosh... ");
             } else {
                 print("...*clang*\n\n");
                 this.itinerary = [];
                 if (d(1, 3) === 1) room.arrows++;
-                return;
+                return true;
             }
         }
 
@@ -483,6 +472,7 @@ SuperWumpusLand = function() {
             print("...*thud*");
             room.arrows++;
         }
+        return true;
     };
 
     /* -*-*-*- GAME STATES -*-*-*- */
@@ -499,14 +489,50 @@ SuperWumpusLand = function() {
             self.tty.write(str);
         };
         var dest = parseInt(input, 10);
-        if (dest !== 0 && dest !== NaN) {
-            this.itinerary.push(dest);
-            print("Enter next location to fire into> ");
+        if (isNaN(dest)) {
+            print("Not a valid location, try again> ");
             this.gameState = 'stateArrowPrompt';
-            return;
+        } else if (dest === 0) {
+            if (this.fireArrow()) {
+                this.pause('statePrompt');
+            } else {
+                this.gameState = 'stateGameOver';
+            }
         } else {
-            this.fireArrow();
+            this.itinerary.push(dest);
+            print("Enter next location to fire into, or 0 to commence> ");
+            this.gameState = 'stateArrowPrompt';
+        }
+    };
+
+    this.stateSubwayPrompt = function(input) {
+        var self = this;
+        var print = function(str) {
+            self.tty.write(str);
+        };
+        var dest = parseInt(input, 10);
+        if (isNaN(dest) || dest < 1 || dest > 100) {
+            print("OK, keep your token, if that's the way you feel.\n");
             this.pause('statePrompt');
+        } else {
+            this.tokens--;
+            print("\n  \"All aboard!\"\n\n");
+            this.pause('statePrompt');
+            /*
+            sleep 2;
+            for(my $q = 1; $q <= 3; $q++) { print ((' ' x $q) x $q . "...chug chug...\n"); sleep 1; }
+            for(my $i = 1; $i <= 3; $i++)
+            {
+              $room = d(1,100);
+              $subway = 1;
+              show();
+              for(my $q = 1; $q <= 3; $q++) { print ((' ' x $i) x $q . "...chug chug...\n"); sleep 1; }
+              $subway = 0;
+            }
+            print "\n  \"Next stop, $r, $room[$r]->[0]...\"";
+            sleep 3;
+            $room = $r;
+            */
         }
     };
 
@@ -576,6 +602,13 @@ SuperWumpusLand = function() {
             print("Enter the first location to fire into> ");
             this.gameState = 'stateArrowPrompt';
             return;
+        } else if (input === 'S' && room.carcasses > 0) {
+            this.hides += room.carcasses;
+            room.carcasses = 0;
+        } else if (input === 'R' && this.tokens > 0) {
+            print("Where do you want to take the subway to? [1-100]  ");
+            this.gameState = 'stateSubwayPrompt';
+            return;
         } else if (input === 'D' && room.guano > 0) {
             this.ustink += d(3,3);
             room.guano--;
@@ -591,7 +624,7 @@ SuperWumpusLand = function() {
             this.tokens += room.tokens; room.tokens = 0;
         } else {
             var dest = parseInt(input, 10);
-            if (dest !== NaN) {
+            if (!isNaN(dest)) {
                 if (room.exits[0] === dest ||
                     room.exits[1] === dest ||
                     room.exits[2] === dest) {
