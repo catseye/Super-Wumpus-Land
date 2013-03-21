@@ -7,6 +7,19 @@ function d(n, s) {
   return c;
 }
 
+function rep(ch, num) {
+    s = "";
+    for (var i = 0; i < num; i ++) {
+        s += ch;
+    }
+    return s;
+}
+
+function rjust(str, width) {
+    if (str.length >= width) return str;
+    return rep(' ', width - str.length) + str;
+}
+
 Room = function() {
     this.init = function(desc, exits) {
         this.desc = desc;
@@ -134,9 +147,75 @@ SuperWumpusLand = function() {
         this.roomNo = d(1,100);
         this.arrows = 1;
 
-        tty.write("SUPER WUMPUS LAND\n\n");
+        this.splash();
         this.pause('statePrompt');
     };
+
+    this.splash = function() {
+        this.tty.reset();
+        var self = this;
+        var print = function(str) {
+            self.tty.write(str);
+        };
+        print(rep('*', 72) + "\n");
+        for (var i = 1; i <= 20; i++) {
+            if (i === 6)
+                print("*                S U P E R     W U M P U S     L A N D                 *\n");
+            else if (i === 7)
+               print("*                ---------     -----------     -------                 *\n");
+            else if (i === 9)
+               print("*                           v1.1 (Javascript)                          *\n");
+            else if (i === 14)
+               print("*              by Chris Pressey, Cat's Eye Technologies                *\n");
+            else if (i === 16)
+               print("*              Based on an original game by Gregory Yob                *\n");
+            else
+               print("*" + rep(' ', 70) + "*\n");
+        }
+        print(rep('*', 72) + "\n");
+    };
+
+    this.score = function() {
+        this.tty.reset();
+        var self = this;
+        var print = function(str) {
+            self.tty.write(str);
+        };
+        print("Scorecard for " + this.name + "\n");
+        print(rep('=', 14 + this.name.length) + "\n\n");
+        
+        var h1 = rjust('' + this.hides, 3);
+        var s1 = rjust('' + (this.hides * 25), 9);
+        print("Wumpus Hides       " + h1 + " x  25 = " + s1 + "\n");
+
+        var h2 = rjust('' + this.arrows, 3);
+        var s2 = rjust('' + (this.arrows * 2), 9);
+        print("Arrows Remaining   " + h2 + " x   2 = " + s2 + "\n");
+
+        var h4 = rjust('' + this.cans, 3);
+        var s4 = rjust('' + (this.cans * 3), 9);
+        print("Aerosol Cans       " + h4 + " x   3 = " + s4 + "\n");
+
+        var h5 = rjust('' + this.tokens, 3);
+        var s5 = rjust('' + (this.tokens * 5), 9);
+        print("Subway Tokens      " + h5 + " x   5 = " + s5 + "\n");
+
+          /*
+        my $h3 = 0;
+        for (my $i = 1; $i <= 100; $i++)
+        {
+          $h3++ if $visited[$i];
+        }
+        $h3 = sprintf("%3d", $h3);
+        my $s3 = sprintf("%9d", $h3);
+        print "Locations Visited  $h3 x   1 = $s3\n";
+
+        my $tot = sprintf("%9d", $s1 + $s2 + $s3 + $s4 + $s5);
+        print "                               ---------\n";
+        print "Total                          $tot\n\n";
+        */
+    };
+
 
     this.pause = function(nextState) {
         this.tty.write("\n[Press ENTER to continue.]  ");
@@ -156,9 +235,7 @@ SuperWumpusLand = function() {
 
         this.visited[this.roomNo] = 1;
         print(desc + "\n");
-        for (var i = 0; i < desc.length; i++) {
-            print('-');
-        }
+        print(rep('-', desc.length));
         print("\n\n");
 
         if (room.arrows === 1) {
@@ -552,8 +629,7 @@ SuperWumpusLand = function() {
             this.pause('stateGameOver');
             return;
         } else if (input === 'I') {
-            //alert('ya');
-            print("Your score is 7.");
+            this.score();
             this.pause('statePrompt');
             return;
         } else if (input === 'A' && this.cans > 0) {
