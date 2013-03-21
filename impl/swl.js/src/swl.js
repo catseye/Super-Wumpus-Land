@@ -52,9 +52,10 @@ SuperWumpusLand = function() {
         
         this.subway = false;
         
-        this.done = false;
         this.skip = false;
         this.moved = false;
+
+        this.gameState = 'stateTitleScreen';
 
         var loc_adj = [
           'Rocky',
@@ -133,8 +134,12 @@ SuperWumpusLand = function() {
         this.arrows = 1;
 
         tty.write("SUPER WUMPUS LAND\n\n");
-        this.show();
-        this.ask();
+        this.pause('statePrompt');
+    };
+
+    this.pause = function(nextState) {
+        this.tty.write("\n[Press ENTER to continue.]  ");
+        this.gameState = nextState;
     };
 
     this.show = function() {
@@ -179,15 +184,14 @@ SuperWumpusLand = function() {
             print("" + room.tokens + " subway tokens lie on the ground here.\n");
         }
 
-        if (room.guano > 0)
-        {
-          print("\nThere is a ");
-          if (room.guano === 1) { print("small"); }
-          else if (room.guano === 2) { print("sizable"); }
-          else if (room.guano === 3) { print("large"); }
-          else if (room.guano === 4) { print("huge"); }
-          else { print("gigantic"); }
-          print(" pile of Wumpus dung here.\n");
+        if (room.guano > 0) {
+            print("\nThere is a ");
+            if (room.guano === 1) { print("small"); }
+            else if (room.guano === 2) { print("sizable"); }
+            else if (room.guano === 3) { print("large"); }
+            else if (room.guano === 4) { print("huge"); }
+            else { print("gigantic"); }
+            print(" pile of Wumpus dung here.\n");
         }
 
         print("\n");
@@ -205,9 +209,8 @@ SuperWumpusLand = function() {
                         if (this.codliver > 0) {
                             print("  ...and immediately BARFED YOU BACK OUT!!!!\n");
                         } else {
-                            this.pause();
-                            this.done = true;
-                            return;
+                            this.pause('stateGameOver');
+                            return false;
                         }
                     }
                 } else {
@@ -232,10 +235,10 @@ SuperWumpusLand = function() {
                 print("* Super Bats in this location stay well away from your awful stench!\n");
             } else {
                 print("* Zap!  Super Bat Snatch!  Elsewheresville for you!\n");
-                this.pause();
                 this.roomNo = d(1,100);
                 this.skip = 1;
-                return;
+                this.pause('statePrompt');
+                return false;
             }
         }
         var batsNearby = false;
@@ -255,9 +258,8 @@ SuperWumpusLand = function() {
                 print("* You deftly stick to the edge of the bottomless pit!\n");
             } else {
                 print("* Yiiiieeee!!!  Fell in a pit!\n");
-                this.pause();
-                this.done = true;
-                return;
+                this.pause('stateGameOver');
+                return false;
             }
         }
         var aDraft = false;
@@ -285,6 +287,7 @@ SuperWumpusLand = function() {
           }
         }
         print("\n");
+        return true;
     };
 
     this.ask = function() {
@@ -342,107 +345,10 @@ SuperWumpusLand = function() {
         print("  [I]nventory and Score\n\n");
         print("  [Q]uit\n\n");
         print("What would you like to do next, " + this.name + "?  ");
-    };
-    
-    this.pause = function() {
-        this.tty.write("\n[Press ENTER to continue.]  ");
-        this.paused = true;
+        
+        this.gameState = 'stateProcessCommand';
     };
 
-    this.handleInput = function(input) {
-        if (this.paused) {
-            this.paused = false;
-            this.show();
-            this.ask();
-            return;
-        }
-
-        var self = this;
-        var print = function(str) {
-            self.tty.write(str);
-        };
-        var room = this.rooms[this.roomNo];
-
-        input = input.toUpperCase();
-        if (input === 'Q') {
-            this.done = true;
-            return;
-        } else if (input === 'I') {
-            //alert('ya');
-            print("Your score is 7.");
-            this.pause();
-            return;
-        } else if (input === 'A' && this.cans > 0) {
-            this.cans--;
-            print("\n  * * * *** fshhhhhhhhhhfft *** * * *\n\n");
-            //sleep 1;
-            print("  Turns out it was ... ");
-            //sleep 2;
-            var c = d(1, 7);
-            if (c === 1) {
-              print("new car smell!\n");
-            } else if (c === 2) {
-              print("\"Bat-B-Gon!\"\n");
-              this.batbgon += d(4,4);
-            } else if (c === 3) {
-              print("pepper spray!!!!  AIIIGGGGHHHH!!!\n\n");
-              //sleep 1;
-              print("  AAAAIIIIIIIIIIIIIIGGGGGGHHHHH!!!\n\n");
-              //sleep 2;
-              print("  AAAAAAAIIIIIIIIIIIIIIIIIIIIGGGGGGGGHHHHHH!!!\n\n");
-              //sleep 3;
-              print("  AAAAAAAAAAIIIIIIIIIIIIIIIIIIIIIIIIIIGGGGGGGGGGHHHHHHH!!!\n\n");
-              //sleep 4;
-              print("You run around screaming for a while until the burning subsides...\n");
-              this.roomNo = d(1,100);
-            } else if (c === 4) {
-              print("\"Super Sticky Grip Goop\"!\n");
-              this.grip += d(4,4);
-            } else if (c === 5) {
-              print("cod liver oil!\n");
-              this.codliver += d(4,4);
-            } else if (c === 6) {
-              print("camoflage paint!\n");
-              this.camo += d(4,4);
-            } else if (c === 7) {
-              print("\"E-Z-F Oven Cleaner!\"\n");
-              if (this.grip > 0) this.grip = 1;
-              if (this.camo > 0) this.camo = 1;
-              if (this.codliver > 0) this.codliver = 1;
-              if (this.batbgon > 0) this.batbgon = 1;
-            }
-            this.pause();
-        } else if (input === 'D' && room.guano > 0) {
-            this.ustink += d(3,3);
-            room.guano--;
-            if (d(1,3)  == 1) { room.arrows++; }
-            if (d(1,6)  == 1) { room.cans++; }
-            if (d(1,12) == 1) { room.tokens++; }
-            print("\nEw.  You now stink so bad that you can't smell anything but yourself.\n");
-            this.pause();
-            return;
-        } else if (input === 'P') {
-            this.arrows += room.arrows; room.arrows = 0;
-            this.cans += room.cans; room.cans = 0;
-            this.tokens += room.tokens; room.tokens = 0;
-        } else {
-            var dest = parseInt(input, 10);
-            if (dest !== NaN) {
-                if (room.exits[0] === dest ||
-                    room.exits[1] === dest ||
-                    room.exits[2] === dest) {
-                    this.roomNo = dest;
-                    this.moved = true;
-                }
-            }
-        }
-
-        this.moveWumpi();
-
-        this.show();
-        this.ask();
-    };
-    
     this.moveWumpi = function() {
         var self = this;
         var print = function(str) {
@@ -484,5 +390,110 @@ SuperWumpusLand = function() {
                 if (d(1,8) === 1) { this.rooms[wumpus.room].guano++; }
             }
         }
+    };
+
+    /* -*-*-*- GAME STATES -*-*-*- */
+
+    this.statePrompt = function(input) {
+        if (this.show()) {
+            this.ask();
+        }
+    };
+
+    this.stateGameOver = function(input) {
+        this.tty.write("Game over, " + this.name + ".\n");
+    };
+
+    this.stateProcessCommand = function(input) {
+        var self = this;
+        var print = function(str) {
+            self.tty.write(str);
+        };
+        var room = this.rooms[this.roomNo];
+
+        input = input.toUpperCase();
+        if (input === 'Q') {
+            this.pause('stateGameOver');
+            return;
+        } else if (input === 'I') {
+            //alert('ya');
+            print("Your score is 7.");
+            this.pause('statePrompt');
+            return;
+        } else if (input === 'A' && this.cans > 0) {
+            this.cans--;
+            print("\n  * * * *** fshhhhhhhhhhfft *** * * *\n\n");
+            //sleep 1;
+            print("  Turns out it was ... ");
+            //sleep 2;
+            var c = d(1, 7);
+            if (c === 1) {
+              print("new car smell!\n");
+            } else if (c === 2) {
+              print("\"Bat-B-Gon!\"\n");
+              this.batbgon += d(4,4);
+            } else if (c === 3) {
+              print("pepper spray!!!!  AIIIGGGGHHHH!!!\n\n");
+              //sleep 1;
+              print("  AAAAIIIIIIIIIIIIIIGGGGGGHHHHH!!!\n\n");
+              //sleep 2;
+              print("  AAAAAAAIIIIIIIIIIIIIIIIIIIIGGGGGGGGHHHHHH!!!\n\n");
+              //sleep 3;
+              print("  AAAAAAAAAAIIIIIIIIIIIIIIIIIIIIIIIIIIGGGGGGGGGGHHHHHHH!!!\n\n");
+              //sleep 4;
+              print("You run around screaming for a while until the burning subsides...\n");
+              this.roomNo = d(1,100);
+            } else if (c === 4) {
+              print("\"Super Sticky Grip Goop\"!\n");
+              this.grip += d(4,4);
+            } else if (c === 5) {
+              print("cod liver oil!\n");
+              this.codliver += d(4,4);
+            } else if (c === 6) {
+              print("camoflage paint!\n");
+              this.camo += d(4,4);
+            } else if (c === 7) {
+              print("\"E-Z-F Oven Cleaner!\"\n");
+              if (this.grip > 0) this.grip = 1;
+              if (this.camo > 0) this.camo = 1;
+              if (this.codliver > 0) this.codliver = 1;
+              if (this.batbgon > 0) this.batbgon = 1;
+            }
+            this.pause('statePrompt');
+            return;
+        } else if (input === 'D' && room.guano > 0) {
+            this.ustink += d(3,3);
+            room.guano--;
+            if (d(1,3)  == 1) { room.arrows++; }
+            if (d(1,6)  == 1) { room.cans++; }
+            if (d(1,12) == 1) { room.tokens++; }
+            print("\nEw.  You now stink so bad that you can't smell anything but yourself.\n");
+            this.pause('statePrompt');
+            return;
+        } else if (input === 'P') {
+            this.arrows += room.arrows; room.arrows = 0;
+            this.cans += room.cans; room.cans = 0;
+            this.tokens += room.tokens; room.tokens = 0;
+        } else {
+            var dest = parseInt(input, 10);
+            if (dest !== NaN) {
+                if (room.exits[0] === dest ||
+                    room.exits[1] === dest ||
+                    room.exits[2] === dest) {
+                    this.roomNo = dest;
+                    this.moved = true;
+                }
+            }
+        }
+
+        this.moveWumpi();
+
+        if (this.show()) {
+            this.ask();
+        }
+    };
+
+    this.handleInput = function(input) {
+        this[this.gameState](input);
     };
 };
