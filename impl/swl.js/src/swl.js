@@ -392,6 +392,40 @@ SuperWumpusLand = function() {
         }
     };
 
+    this.entropy = function() {
+        var self = this;
+        var message = false;
+        var print = function(str) {
+            self.tty.write(str);
+            message = true;
+        };
+        if (this.batbgon > 0) {
+            this.batbgon--;
+            if (this.batbgon == 1) { print("Your \"Bat-B-Gon\" is wearing off.\n"); }
+            if (this.batbgon == 0) { print("Your \"Bat-B-Gon\" has worn off.\n"); }
+        }
+        if (this.codliver > 0) {
+            this.codliver == 1;
+            if (this.codliver == 1) { print("The cod liver oil seems to be wearing off.\n"); }
+            if (this.codliver == 0) { print("The cod liver oil seems to have all worn off.\n"); }
+        }
+        if (this.camo > 0) {
+            this.camo--;
+            if (this.camo == 1) { print("Your camoflage is peeling.\n"); }
+            if (this.camo == 0) { print("Your camoflage is gone.\n"); }
+        }
+        if (this.grip > 0) {
+            this.grip--;
+            if (this.grip == 1) { print("Your hands and feet are starting to feel less sticky.\n"); }
+            if (this.grip == 0) { print("Your hands and feet are no longer sticky.\n"); }
+        }
+        if (this.ustink > 0) {
+            this.ustink--;
+            if (this.ustink == 0) { print("Your sense of smell seems to have returned.\n"); }
+        }
+        return message;
+    };
+
     /* -*-*-*- GAME STATES -*-*-*- */
 
     this.statePrompt = function(input) {
@@ -487,6 +521,10 @@ SuperWumpusLand = function() {
         }
 
         this.moveWumpi();
+        if (this.entropy()) {
+            this.pause('statePrompt');
+            return;
+        }
 
         if (this.show()) {
             this.ask();
