@@ -407,7 +407,7 @@ sub ask
     print "\nEw.  You now stink so bad that you can't smell anything but yourself.\n";
     pause();
   }
-  elsif ($r eq 'A')
+  elsif ($r eq 'A' and $cans > 0)
   {
     $cans--;
     print "\n  * * * *** fshhhhhhhhhhfft *** * * *\n\n";
