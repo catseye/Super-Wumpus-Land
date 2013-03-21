@@ -425,12 +425,88 @@ SuperWumpusLand = function() {
         }
         return message;
     };
+    
+    this.fireArrow = function() {
+        var self = this;
+        var print = function(str) {
+            self.tty.write(str);
+        };
+        print("Twang!... ");
+        this.arrows--;
+        
+        var arrowLoc = this.roomNo;
+        while (this.itinerary.length > 0) {
+            var arrowDest = this.itinerary.shift();
+            var room = this.rooms[arrowLoc];
+            if ((arrowLoc === arrowDest) ||
+                (room.exits[0] === arrowDest) ||
+                (room.exits[1] === arrowDest) ||
+                (room.exits[2] === arrowDest)) {
+                arrowLoc = arrowDest;
+                /*
+                for(my $i = 0; $i < 20; $i++)
+                {
+                  if ($wumpus[$i]->[0] == $l)
+                  {
+                    sleep 3;
+                    print "...*SPLAK*!  Got something!\n";
+                    $wumpus[$i]->[0] = 0;
+                    $room[$l]->[5]++;
+                    pause();
+                    return;
+                  }
+                }
+
+                if ($room == $l)
+                {
+                  sleep 3;
+                  print "...*ZOINKS!*\n\nYou shot yourself in the foot, $name!!!\n";
+                  $done = 1;
+                  pause();
+                  return;
+                }
+
+                sleep 1;
+                print "...whoosh... ";
+                */
+                print("(arrow is in room " + arrowLoc + ")");
+            } else {
+                print("...*clang*\n\n");
+                this.itinerary = [];
+                if (d(1, 3) === 1) room.arrows++;
+                return;
+            }
+        }
+
+        var room = this.rooms[arrowLoc];
+        if (room.pits === 0) {
+            print("...*thud*");
+            room.arrows++;
+        }
+    };
 
     /* -*-*-*- GAME STATES -*-*-*- */
 
     this.statePrompt = function(input) {
         if (this.show()) {
             this.ask();
+        }
+    };
+
+    this.stateArrowPrompt = function(input) {
+        var self = this;
+        var print = function(str) {
+            self.tty.write(str);
+        };
+        var dest = parseInt(input, 10);
+        if (dest !== 0 && dest !== NaN) {
+            this.itinerary.push(dest);
+            print("Enter next location to fire into> ");
+            this.gameState = 'stateArrowPrompt';
+            return;
+        } else {
+            this.fireArrow();
+            this.pause('statePrompt');
         }
     };
 
@@ -494,6 +570,11 @@ SuperWumpusLand = function() {
               if (this.batbgon > 0) this.batbgon = 1;
             }
             this.pause('statePrompt');
+            return;
+        } else if (input === 'F' && this.arrows > 0) {
+            this.itinerary = [];
+            print("Enter the first location to fire into> ");
+            this.gameState = 'stateArrowPrompt';
             return;
         } else if (input === 'D' && room.guano > 0) {
             this.ustink += d(3,3);
