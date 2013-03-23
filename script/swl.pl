@@ -174,7 +174,11 @@ sub show
 
   $visited[$room] = 1;
 
-  print $desc . "\n";
+  print $desc;
+  if ($subway) {
+      print " (aboard subway train)";
+  }
+  print "\n";
   print "-" x length($desc) . "\n\n";
 
   if ($room[$room]->[4] == 1)

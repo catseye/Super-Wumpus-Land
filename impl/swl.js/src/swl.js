@@ -278,7 +278,12 @@ SuperWumpusLand = function() {
         this.tty.reset();
 
         this.visited[this.roomNo] = 1;
-        print(desc + "\n");
+        print(desc);
+        if (this.subway > 0) {
+            print(" (aboard subway train)");
+        }
+        print("\n");
+
         print(rep('-', desc.length));
         print("\n\n");
 
