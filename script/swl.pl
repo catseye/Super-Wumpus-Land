@@ -2,7 +2,7 @@
 
 ### BEGIN swl.pl ###
 
-# SUPER WUMPUS LAND v1.0-2013.0326
+# SUPER WUMPUS LAND v1.1-2013.0324
 # Copyright (c)2000-2013, Chris Pressey, Cat's Eye Technologies.
 # All rights reserved.
 # 
@@ -110,7 +110,11 @@ sub splash
     }
     elsif ($i == 9)
     {
-      print "*                            v1.0-2013.0326                            *\n";
+      print "*                            v1.1-2013.0324                            *\n";
+    }
+    elsif ($i == 10)
+    {
+      print "*                            (Perl version)                            *\n";
     }
     elsif ($i == 14)
     {

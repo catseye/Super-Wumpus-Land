@@ -1,5 +1,5 @@
 /*
-# SUPER WUMPUS LAND v1.1-2013.0326
+# SUPER WUMPUS LAND v1.1-2013.0324
 # Copyright (c)2000-2013, Chris Pressey, Cat's Eye Technologies.
 # All rights reserved.
 # 
@@ -198,7 +198,9 @@ SuperWumpusLand = function() {
             else if (i === 7)
                 print("*                ---------     -----------     -------                 *\n");
             else if (i === 9)
-                print("*                           v1.1 (Javascript)                          *\n");
+                print("*                            v1.1-2013.0324                            *\n");
+            else if (i === 10)
+                print("*                         (Javascript version)                         *\n");
             else if (i === 14)
                 print("*              by Chris Pressey, Cat's Eye Technologies                *\n");
             else if (i === 16)

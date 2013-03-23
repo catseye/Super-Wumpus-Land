@@ -33,9 +33,12 @@ Changelog-a-go-go
     Fixed bug in Perl version where you could spray an aerosol can
     that you didn't actually have.
     
-    Perl version oddly bore the version number "1.0-2013.0323".
+    Perl version still bore the version number 1.0.  Both versions
+    oddly bore the version number "1.0-2013.0326".
     
 *   v1.1-2013.0324
+    
+    Fixed version number in both versions to 1.1-2013.0324.
     
     Fixed bug in Javascript version where you effectively never
     disembarked from the subway train, once on it.
