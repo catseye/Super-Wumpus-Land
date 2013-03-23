@@ -45,13 +45,17 @@ Wumpus = function() {
 SuperWumpusLand = function() {
     this.init = function(tty) {
         this.tty = tty;
+        this.resetGame();
+        this.splash();
+        this.pause('stateAskName');
+    };
 
+    this.resetGame = function() {
         this.rooms = [];
         this.visited = [];
         this.wumpi = [];
         this.itinerary = [];
 
-        this.name = 'user';  // Actually, it's the *player's* name...
         this.roomNo = 0;
         
         this.arrows = 0;
@@ -70,8 +74,6 @@ SuperWumpusLand = function() {
         
         this.skip = false;
         this.moved = false;
-
-        this.gameState = 'stateTitleScreen';
 
         var loc_adj = [
           'Rocky',
@@ -113,7 +115,7 @@ SuperWumpusLand = function() {
                 this.rooms[r] = room;
                 backlinks.push([r1, r]);
                 backlinks.push([r2, r]);
-                backlinks.push([r3, r]);              
+                backlinks.push([r3, r]);
             }
         }
         
@@ -148,9 +150,6 @@ SuperWumpusLand = function() {
 
         this.roomNo = d(1,100);
         this.arrows = 1;
-
-        this.splash();
-        this.pause('statePrompt');
     };
 
     this.splash = function() {
@@ -566,6 +565,23 @@ SuperWumpusLand = function() {
 
     /* -*-*-*- GAME STATES -*-*-*- */
 
+    this.stateAskName = function(input) {
+        this.tty.reset();
+        this.tty.write("\n\n\n\n\n\n\n\n\n\n\n                 What is your name?  ");
+        this.gameState = 'stateReadName';
+    };
+    
+    this.stateReadName = function(input) {
+        this.name = input;
+        if (this.name === '') {
+            this.name = ["Cuddles", "Sweetie-Pie", "Snookums", "Honeybunch"][d(1,4)-1];
+            this.tty.write("  Fine, I'll just call you " + this.name + " then.\n");
+            this.pause('statePrompt');
+        } else {
+            this.statePrompt(input);
+        }
+    };
+
     this.statePrompt = function(input) {
         if (this.show()) {
             this.ask();
@@ -631,7 +647,18 @@ SuperWumpusLand = function() {
     };
 
     this.stateGameOver = function(input) {
-        this.tty.write("Game over, " + this.name + ".\n");
+        this.score();
+        this.tty.write("\nYou want to play again, right, " + this.name + "?  ");
+        this.gameState = 'stateAskPlayAgain';
+    };
+
+    this.stateAskPlayAgain = function(input) {
+        if (input.length > 0 && (input.substr(0, 1) === 'y' || input.substr(0, 1) === 'Y')) {
+            this.resetGame();
+            this.statePrompt();
+        } else {
+            this.gameState = 'stateBroken';
+        }
     };
 
     this.stateProcessCommand = function(input) {
