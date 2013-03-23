@@ -1,11 +1,9 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 ### BEGIN swl.pl ###
 
-# SUPER WUMPUS LAND
-# v2007.1216 Chris Pressey, Cat's Eye Technologies
-
-# Copyright (c)2000-2007, Cat's Eye Technologies.
+# SUPER WUMPUS LAND v1.0-2013.0326
+# Copyright (c)2000-2013, Chris Pressey, Cat's Eye Technologies.
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -112,7 +110,7 @@ sub splash
     }
     elsif ($i == 9)
     {
-      print "*                              v 2007.1216                             *\n";
+      print "*                            v1.0-2013.0326                            *\n";
     }
     elsif ($i == 14)
     {
