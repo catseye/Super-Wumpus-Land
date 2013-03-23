@@ -672,6 +672,7 @@ SuperWumpusLand = function() {
         if (this.subwayTurns === 0) {
             print("\n  \"Next stop, " + this.subway + ", " + this.rooms[this.subway].desc + "...\"\n\n");
             this.roomNo = this.subway;
+            this.subway = 0;
             this.pause('statePrompt');
         } else {
             print("\n  ...chug chug...\n\n");
