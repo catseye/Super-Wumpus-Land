@@ -1,6 +1,11 @@
 Super Wumpus Land
 =================
 
+![Screenshot of Super Wumpus Land](https://raw.github.com/catseye/Super-Wumpus-Land/master/images/Super Wumpus Land.png)
+
+What is this?
+-------------
+
 This is the reference distribution of Super Wumpus Land, a computer game
 by Chris Pressey, based on a legendary game by Gregory Yob.
 
