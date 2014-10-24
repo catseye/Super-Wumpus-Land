@@ -1,35 +1,76 @@
 /*
-# SUPER WUMPUS LAND v1.1-2013.0324
-# Copyright (c)2000-2013, Chris Pressey, Cat's Eye Technologies.
-# All rights reserved.
-# 
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
-#
-#  1. Redistributions of source code must retain the above copyright
-#     notices, this list of conditions and the following disclaimer.
-#  2. Redistributions in binary form must reproduce the above copyright
-#     notices, this list of conditions, and the following disclaimer in
-#     the documentation and/or other materials provided with the
-#     distribution.
-#  3. Neither the names of the copyright holders nor the names of their
-#     contributors may be used to endorse or promote products derived
-#     from this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-# FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE
-# COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
+ * SUPER WUMPUS LAND v1.1-2014.1024
+ * Copyright (c)2000-2014, Chris Pressey, Cat's Eye Technologies.
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 
+ *  1. Redistributions of source code must retain the above copyright
+ *     notices, this list of conditions and the following disclaimer.
+ *  2. Redistributions in binary form must reproduce the above copyright
+ *     notices, this list of conditions, and the following disclaimer in
+ *     the documentation and/or other materials provided with the
+ *     distribution.
+ *  3. Neither the names of the copyright holders nor the names of their
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE
+ * COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
 */
+
+function launch(prefix, containerId) {
+    var deps = [
+        "playfield.js",
+        "cursor.js",
+        "playfield-canvas-view.js",
+        "text-terminal.js",
+        "line-input-buffer.js",
+        "element-factory.js"
+    ];
+    var loaded = 0;
+    for (var i = 0; i < deps.length; i++) {
+        var elem = document.createElement('script');
+        elem.src = prefix + deps[i];
+        elem.onload = function() {
+            if (++loaded == deps.length) {
+                var container = document.getElementById(containerId);
+                var canvas = yoob.makeCanvas(container, 400, 400);
+                canvas.tabIndex = "0";
+                canvas.style.background = "black";
+                canvas.style.border = "5px solid black";
+
+                var t = new yoob.TextTerminal().init(80, 25);
+                var view = t.createPlayfieldCanvasView(canvas, 11, 18);
+                var swl = new SuperWumpusLand();
+                swl.init(t);
+                var ib = new yoob.LineInputBuffer().init(canvas, t);
+                ib.onupdate = function(str) {
+                    view.draw();
+                };
+                ib.onenter = function(str) {
+                    swl.handleInput(str);
+                    view.draw();
+                };
+                view.draw();
+                canvas.focus();
+            }
+        };
+        document.body.appendChild(elem);
+    }
+}
 
 function d(n, s) {
   var c = 0;
@@ -198,7 +239,7 @@ SuperWumpusLand = function() {
             else if (i === 7)
                 print("*                ---------     -----------     -------                 *\n");
             else if (i === 9)
-                print("*                            v1.1-2013.0324                            *\n");
+                print("*                            v1.1-2014.1024                            *\n");
             else if (i === 10)
                 print("*                         (Javascript version)                         *\n");
             else if (i === 14)

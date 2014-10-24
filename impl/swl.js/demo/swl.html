@@ -3,9 +3,10 @@
   <meta charset="utf-8">
   <title>SUPER WUMPUS LAND</title>
   <style>
-#terminal {
-  background: black;
-  border: 5px solid black;
+canvas { border: 1px solid blue; }
+#container {
+    width: 100%;
+    text-align: center;
 }
   </style>
 </head>
@@ -13,30 +14,10 @@
 
 <h1>SUPER WUMPUS LAND</h1>
 
-<canvas id="terminal" width="400" height="400" tabindex="0">
-  Your browser doesn't support displaying an HTML5 canvas.
-</canvas>
+<div id="container"></div>
 
 </body>
-<script src="../src/yoob/playfield.js"></script>
-<script src="../src/yoob/cursor.js"></script>
-<script src="../src/yoob/playfield-html-view.js"></script>
-<script src="../src/yoob/playfield-canvas-view.js"></script>
-<script src="../src/yoob/text-terminal.js"></script>
-<script src="../src/yoob/line-input-buffer.js"></script>
 <script src="../src/swl.js"></script>
 <script>
-  var element = document.getElementById('terminal');
-  var t = new yoob.TextTerminal().init(80, 25);
-  var view = t.createPlayfieldCanvasView(element, 11, 18);
-  var swl = new SuperWumpusLand();
-  swl.init(t);
-  var ib = new yoob.LineInputBuffer().init(element, t);
-  ib.onupdate = function(str) { view.draw(); };
-  ib.onenter = function(str) {
-    swl.handleInput(str);
-    view.draw();
-  };
-  view.draw();
-  element.focus();
+  launch('../src/yoob/', 'container');
 </script>
