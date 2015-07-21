@@ -1,6 +1,6 @@
 /*
- * SUPER WUMPUS LAND v1.1-2014.1024
- * Copyright (c)2000-2014, Chris Pressey, Cat's Eye Technologies.
+ * SUPER WUMPUS LAND v1.1-2015.0721 (Javascript version)
+ * Copyright (c)2013-2015, Chris Pressey, Cat's Eye Technologies.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -239,7 +239,7 @@ SuperWumpusLand = function() {
             else if (i === 7)
                 print("*                ---------     -----------     -------                 *\n");
             else if (i === 9)
-                print("*                            v1.1-2014.1024                            *\n");
+                print("*                            v1.1-2015.0721                            *\n");
             else if (i === 10)
                 print("*                         (Javascript version)                         *\n");
             else if (i === 14)
