@@ -1,7 +1,7 @@
 Super Wumpus Land
 =================
 
-![Screenshot of Super Wumpus Land](https://raw.github.com/catseye/Super-Wumpus-Land/master/images/Super%20Wumpus%20Land.png)
+![Screenshot of Super Wumpus Land](images/Super%20Wumpus%20Land.png?raw=true)
 
 What is this?
 -------------
