@@ -1,6 +1,11 @@
 Super Wumpus Land
 =================
 
+_Try it online_ [@ catseye.tc](https://catseye.tc/installation/Super_Wumpus_Land)
+| _See also:_ [The Never-Ending Maze](https://catseye.tc/node/The_Never-Ending_Maze)
+
+- - - -
+
 ![Screenshot of Super Wumpus Land](images/Super%20Wumpus%20Land.png?raw=true)
 
 What is this?
